@@ -1,0 +1,15 @@
+#!/bin/bash
+
+n=1
+while getopts n: option
+do
+  case "${option}"
+  in
+    n) n=${OPTARG};;
+  esac
+done
+
+objecttype=${@:$OPTIND:1}
+search=${@:$OPTIND+1:1}
+
+kubectl get $objecttype --all-namespaces -o go-template --template='{{range .items}}{{len .metadata.name}} {{.metadata.namespace}} {{println .metadata.name}}{{end}}' --sort-by=.metadata.name| grep -m $n $search | sort -k1 | cut -d " " -f 2,3 | tail -n 1

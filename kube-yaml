@@ -1,0 +1,14 @@
+#!/bin/bash
+
+type=${@:$OPTIND:1}
+search=${@:2:1}
+read namespace object < <(kube-find $type $search)
+if [ "${object}x" == "x" ]; then
+    # some objects dont have a namespace
+    object=$namespace;
+    cmd="kubectl get $type $object -o yaml"
+else
+    cmd="kubectl --namespace=$namespace get $type $object -o yaml"
+fi
+
+$cmd

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+n=1
+while getopts c:s:n: option
+do
+  case "${option}"
+  in
+    c) container=${OPTARG};;
+    s) shell=${OPTARG};;
+    n) n=${OPTARG};;
+  esac
+done
+
+shell=${shell:=bash}
+search=${@:$OPTIND:1}
+read namespace pod < <(kube-find -n $n pod $search)
+cmd="kubectl --namespace=$namespace exec -it $pod "
+
+if [ "${container}x" != "x" ]; then
+    cmd="$cmd -c $container ";
+fi
+$cmd $shell
